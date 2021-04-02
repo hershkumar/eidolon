@@ -1,2 +1,1 @@
-gcc -c eidolon.cpp
-gcc eidolon.o -o eidolon.x -lsfml-graphics -lsfml-window -lsfml-system -lstdc++ -lm
+gcc eidolon.cpp -o eidolon.x -lsfml-graphics -lsfml-window -lsfml-system -lstdc++ -lm

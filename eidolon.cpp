@@ -8,33 +8,59 @@
 #include <SFML/Graphics.hpp>
 
 // screen size
-#define screen_height 200
-#define screen_width 200
+#define screen_height 1000
+#define screen_width 1500
 // map size
-#define map_width 10
-#define map_height 10
+#define map_width 24
+#define map_height 24
 
 // defines just a box map
-int map[map_width][map_height] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+int map[map_width][map_height] =
+{
+  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
+  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
+  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
+  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
+  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
+  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
+  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
+  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
+  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
+  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
+  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
+  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 };
+// Defines the wall colors
+int colors[8][3] = {
+    {255,0,0},
+    {255,128,0},
+    {255,255,0},
+    {128,255,0},
+    {0,255,0},
+    {0,255,128},
+    {0,255,255},
+    {0,128,255}
+};
+
+
 
 int main(){
     // make the window object
     sf::RenderWindow window;
     // set up the window with the screen size and the title
     window.create(sf::VideoMode(screen_width, screen_height), "Eidolon");
-    
-    window.setVerticalSyncEnabled(true);
     
     //character position
     double x_pos = 5, y_pos = 5;
@@ -48,10 +74,15 @@ int main(){
     // last frame time
     double last_frame_time = 0;
 
+    double mov_mult = 1/60.0;
+
     //event loop
     while (window.isOpen()){
         // get the events that happened
         sf::Event event;
+        sf::Font font;
+        font.loadFromFile("arial.ttf");
+
         while (window.pollEvent(event)){
             sf::Clock clock;
             // if they tried to close the window
@@ -140,15 +171,17 @@ int main(){
                 }
                 // get the color that we need to draw
                 int r,g,b;
-                r = 100;
-                g = 0;
-                b = 0;
-                
+                // based on the value of the map and the colors array
+                r = colors[map[map_x][map_y] -1][0];
+                g = colors[map[map_x][map_y] -1][1];
+                b = colors[map[map_x][map_y] -1][2];
+                // if looking at it from the side, we make it darker to get shading
                 if (side){
                     r /= 2;
                     g /= 2;
                     b /= 2;
                 }
+                // draw the wall onto the screen
                 sf::Color color = sf::Color(r, g, b);
                 sf::Vertex line[] = {
                     sf::Vertex(sf::Vector2f(x, draw_start)),
@@ -163,12 +196,24 @@ int main(){
             time = clock.getElapsedTime().asMilliseconds();
             clock.restart();
             double frame_time = (time) / 1000.0;
-            
             double fps = 1.0 / frame_time;
-            printf("fps: %f\n", fps);
-
-            double mov_speed = frame_time * 5.0;
-            double rot_speed = frame_time * 3.0;
+            if (frame_time == 0){
+                fps = 60.0;
+            }
+            
+            
+            // disp fps in top left
+            sf::Text fpsCounter;
+            fpsCounter.setFont(font);
+            fpsCounter.setString(std::to_string(fps));
+            fpsCounter.setCharacterSize(24);
+            fpsCounter.setFillColor(sf::Color::White);
+            fpsCounter.move(10.f, 10.f);
+            window.draw(fpsCounter);
+            
+            
+            double mov_speed = mov_mult * 5.0;
+            double rot_speed = mov_mult * 3.0;
 
             // key input
             // if they press w
